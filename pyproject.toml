@@ -1,0 +1,65 @@
+[project]
+name = "fatturapa-mcp-server"
+version = "0.1.0"
+description = "MCP server for Italian FatturaPA/SDI e-invoicing"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "lxml>=5.0.0",
+    "httpx>=0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+    "lxml-stubs>=0.5.0",
+    "bandit[toml]>=1.7.0",
+    "pip-audit>=2.7.0",
+    "pytest-httpx>=0.30.0",
+]
+
+[project.scripts]
+fatturapa-mcp-server = "fatturapa_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fatturapa_mcp"]
+
+[tool.ruff]
+src = ["src"]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "S"]
+ignore = ["S101"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage.run]
+omit = [
+    "src/fatturapa_mcp/server.py",
+]
+
+[tool.bandit]
+targets = ["src"]
+severity = "medium"
+confidence = "medium"
+skips = []

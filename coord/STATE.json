@@ -1,0 +1,75 @@
+{
+  "project": "fatturapa-mcp-server",
+  "stack": "Python 3.11 / mcp / lxml",
+  "complexity": "MED",
+  "complexity_score": "task:1pt dipendenze:1pt moduli:1pt risk:1pt = 4pt",
+  "current_wave": 2,
+  "waves": {
+    "wave_1": {
+      "status": "DONE",
+      "tasks": {
+        "TASK_scaffold": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_scaffold.md",
+          "last_updated": "2026-05-08T12:00:00+02:00"
+        },
+        "TASK_validate_invoice": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_validate_invoice.md",
+          "last_updated": "2026-05-08T12:15:00+02:00"
+        },
+        "TASK_extract_invoice_data": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_extract_invoice_data.md",
+          "last_updated": "2026-05-08T12:20:00+02:00",
+          "blocked_by": []
+        },
+        "TASK_lookup_sdi_error": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_lookup_sdi_error.md",
+          "last_updated": "2026-05-08T14:10:00+02:00"
+        },
+        "TASK_check_piva": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_check_piva.md",
+          "last_updated": "2026-05-08T14:10:00+02:00"
+        },
+        "TASK_verify_piva_vies": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_verify_piva_vies.md",
+          "last_updated": "2026-05-08T14:10:00+02:00",
+          "blocked_by": []
+        }
+      }
+    },
+    "wave_2": {
+      "status": "DONE",
+      "tasks": {
+        "TASK_ci_github_actions": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_ci_github_actions.md",
+          "last_updated": "2026-05-08T14:20:00+02:00"
+        },
+        "TASK_readme_bilingual": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_readme_bilingual.md",
+          "last_updated": "2026-05-08T14:30:00+02:00"
+        },
+        "TASK_docker": {
+          "status": "DONE",
+          "handoff": "coord/HANDOFF_docker.md",
+          "last_updated": "2026-05-08T14:45:00+02:00"
+        }
+      }
+    }
+  },
+  "assumptions": [
+    "A1: Licenza MIT",
+    "A2: README bilingue EN+IT",
+    "A3: Client MCP riferimento = Claude Desktop",
+    "A4: XSD bundlati nel repo da AdE",
+    "A5: Nessuna autenticazione sul server MCP"
+  ],
+  "open_halts": [],
+  "last_updated": "2026-05-08T14:45:00+02:00"
+}

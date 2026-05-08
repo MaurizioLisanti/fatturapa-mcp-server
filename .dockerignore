@@ -1,0 +1,46 @@
+# Version control
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv
+venv/
+env/
+
+# Test & coverage artefacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Dev / editor files
+.env
+.env.*
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Project coordination (not needed in image)
+coord/
+AGENTS.md
+SPEC.md
+CHANGELOG.md
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore

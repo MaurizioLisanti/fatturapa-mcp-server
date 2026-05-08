@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ruff check *)",
+      "Bash(ruff format *)",
+      "Bash(python *)",
+      "Bash(pip install *)",
+      "Bash(git add *)"
+    ]
+  }
+}

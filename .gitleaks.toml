@@ -1,0 +1,16 @@
+[extend]
+# Extend the default gitleaks config
+useDefault = true
+
+[allowlist]
+description = "Project-level allowlist"
+paths = [
+    ".env.example",
+    "tests/fixtures/",
+]
+
+# Specific regex allowlist for test fixtures with fake data
+regexes = [
+    "12345678901",  # Test P.IVA used in fixtures
+    "98765432109",  # Test P.IVA used in fixtures
+]

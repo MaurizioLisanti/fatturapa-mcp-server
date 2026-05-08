@@ -1,0 +1,33 @@
+services:
+  fatturapa-mcp:
+    build:
+      context: .
+      target: runtime
+    image: fatturapa-mcp-server:latest
+    container_name: fatturapa-mcp-server
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    # MCP stdio transport: keep stdin/stdout open for the MCP client
+    stdin_open: true
+    tty: true
+    # Mount real XSD schemas (see src/fatturapa_mcp/schemas/README.md for download).
+    # Comment out if you want to use the stub schemas bundled in the image.
+    volumes:
+      - ./src/fatturapa_mcp/schemas:/venv/lib/python3.11/site-packages/fatturapa_mcp/schemas:ro
+    restart: "no"
+
+  test:
+    build:
+      context: .
+      target: builder
+    image: fatturapa-mcp-server:builder
+    container_name: fatturapa-mcp-test
+    command: >
+      sh -c "/venv/bin/pip install --no-cache-dir '.[dev]' -q
+             && /venv/bin/pytest -q"
+    environment:
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./src:/build/src:ro
+      - ./tests:/build/tests:ro
+    working_dir: /build

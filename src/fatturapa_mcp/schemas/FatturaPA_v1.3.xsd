@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal XSD stub for FatturaPA v1.3 — sufficient for CI/test validation.
+  Replace with the official AdE schema for production use:
+  see src/fatturapa_mcp/schemas/README.md
+-->
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.3"
+  xmlns:tns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.3"
+  elementFormDefault="unqualified">
+
+  <xs:element name="FatturaElettronica">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="FatturaElettronicaHeader" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="FatturaElettronicaBody" minOccurs="1" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="versione" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
