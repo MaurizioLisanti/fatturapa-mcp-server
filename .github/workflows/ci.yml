@@ -21,6 +21,9 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
+      - name: Upgrade pip
+        run: pip install --upgrade pip
+
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
@@ -46,8 +49,8 @@ jobs:
       - name: Security — bandit
         run: bandit -r src/ -ll
 
-      - name: Security — pip-audit
-        run: pip-audit
+      - name: Security - pip-audit
+        run: pip-audit --skip-editable
 
       - name: Secret scan — gitleaks
         uses: gitleaks/gitleaks-action@v2
