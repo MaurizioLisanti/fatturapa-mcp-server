@@ -1,7 +1,7 @@
 # fatturapa-mcp-server
 
-[![CI](https://github.com/your-org/fatturapa-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/fatturapa-mcp-server/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/your-org/fatturapa-mcp-server/actions)
+[![CI](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -67,7 +67,7 @@ After restarting Claude Desktop you will see five new tools in the tool panel.
 ### Development setup
 
 ```bash
-git clone https://github.com/your-org/fatturapa-mcp-server
+git clone https://github.com/MaurizioLisanti/fatturapa-mcp-server
 cd fatturapa-mcp-server
 
 # Install the package and all dev dependencies
@@ -99,7 +99,7 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
 
 ### Related projects
 
-- **[invoice-aws-ops](https://github.com/your-org/invoice-aws-ops)** — AWS-based
+- **[invoice-aws-ops](https://github.com/MaurizioLisanti/invoice-aws-ops)** — AWS-based
   pipeline that receives, stores and routes FatturaPA files from/to SDI.
   Use together with this MCP server to give Claude end-to-end visibility into
   your Italian e-invoicing operations.
@@ -166,7 +166,7 @@ Dopo il riavvio di Claude Desktop, i cinque strumenti compariranno nel pannello 
 ### Setup per lo sviluppo
 
 ```bash
-git clone https://github.com/your-org/fatturapa-mcp-server
+git clone https://github.com/MaurizioLisanti/fatturapa-mcp-server
 cd fatturapa-mcp-server
 
 # Installa il pacchetto e tutte le dipendenze di sviluppo
@@ -198,7 +198,7 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
 
 ### Progetti correlati
 
-- **[invoice-aws-ops](https://github.com/your-org/invoice-aws-ops)** — Pipeline AWS
+- **[invoice-aws-ops](https://github.com/MaurizioLisanti/invoice-aws-ops)** — Pipeline AWS
   per ricevere, archiviare e instradare i file FatturaPA da/verso il SDI.
   Da usare insieme a questo server MCP per dare a Claude visibilità end-to-end
   sulle operazioni di fatturazione elettronica italiana.
