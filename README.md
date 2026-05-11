@@ -8,7 +8,24 @@
 ---
 
 ## English
+## The problem
+Every project integrating FatturaPA
+reimplements the same validation,
+parsing and SDI error handling from scratch.
+The result: weeks of repeated work,
+hidden bugs and no standardization.
 
+## The solution
+Five production-grade AI tools installable
+in one line — official AdE XSD validation,
+full document parsing, offline SDI error lookup,
+Italian and EU VAT verification via VIES.
+## Who is it for
+Python developers and AI teams working
+on Italian electronic invoicing systems
+who want to integrate Claude without
+reimplementing FatturaPA compliance
+from scratch on every project.
 ### What is this?
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives
@@ -64,6 +81,17 @@ After restarting Claude Desktop you will see five new tools in the tool panel.
 > See [`src/fatturapa_mcp/schemas/README.md`](src/fatturapa_mcp/schemas/README.md)
 > for download instructions.
 
+## What it demonstrates
+- Production-grade MCP server with strict mypy typing
+- Automated security audit — bandit + pip-audit
+- Guaranteed 80% minimum coverage
+- Published on PyPI — installable anywhere in one line
+- Bilingual IT/EN — built for Italian and international market
+## Production status
+Used on real Italian electronic invoicing systems.
+Tested with real SDI documents in production environments.
+Part of a broader ecosystem:
+domain-agent-starter → fatturapa-mcp-server → invoice-aws-ops
 ### Development setup
 
 ```bash
@@ -107,7 +135,22 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
 ---
 
 ## Italiano
-
+## Il problema
+Ogni progetto che integra FatturaPA
+reimplementa da zero la stessa logica
+di validazione, parsing e gestione errori SDI.
+Il risultato: settimane di lavoro ripetuto,
+bug nascosti e nessuna standardizzazione.
+## La soluzione
+Cinque tool AI production-grade installabili
+in una riga — validazione XSD ufficiale AdE,
+parsing completo, lookup errori SDI offline,
+verifica P.IVA italiana ed europea via VIES.
+## Per chi è
+Developer Python e team AI che lavorano
+su sistemi di fatturazione elettronica italiana
+e vogliono integrare Claude senza reimplementare
+la compliance FatturaPA da zero ad ogni progetto.
 ### Cos'è questo progetto?
 
 Un server [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) che
@@ -162,7 +205,17 @@ Dopo il riavvio di Claude Desktop, i cinque strumenti compariranno nel pannello 
 > **Nota sugli XSD:** `validate_invoice` richiede i file XSD ufficiali di AdE.
 > Vedere [`src/fatturapa_mcp/schemas/README.md`](src/fatturapa_mcp/schemas/README.md)
 > per le istruzioni di download.
-
+## Cosa dimostra tecnicamente
+- MCP server production-grade con strict typing mypy
+- Security audit automatico — bandit + pip-audit
+- Coverage minima garantita all'80%
+- Pubblicato su PyPI — installabile ovunque con una riga
+- Bilingue IT/EN — pensato per mercato italiano e internazionale
+  ## In produzione
+Usato su sistemi reali di fatturazione elettronica italiana.
+Testato con documenti SDI reali in ambiente di produzione.
+Parte di un ecosistema più ampio:
+domain-agent-starter → fatturapa-mcp-server → invoice-aws-ops
 ### Setup per lo sviluppo
 
 ```bash
