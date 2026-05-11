@@ -127,7 +127,7 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
 
 ### Related projects
 
-- **[invoice-aws-ops](https://github.com/MaurizioLisanti/invoice-aws-ops)** — AWS-based
+- **[sdi-ops-monitor](https://github.com/MaurizioLisanti/sdi-ops-monitor)** — AWS-based
   pipeline that receives, stores and routes FatturaPA files from/to SDI.
   Use together with this MCP server to give Claude end-to-end visibility into
   your Italian e-invoicing operations.
@@ -215,7 +215,8 @@ Dopo il riavvio di Claude Desktop, i cinque strumenti compariranno nel pannello 
 Usato su sistemi reali di fatturazione elettronica italiana.
 Testato con documenti SDI reali in ambiente di produzione.
 Parte di un ecosistema più ampio:
-domain-agent-starter → fatturapa-mcp-server → invoice-aws-ops
+domain-agent-starter → fatturapa-mcp-server → sdi-ops-monitor
+
 ### Setup per lo sviluppo
 
 ```bash
@@ -251,7 +252,7 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
 
 ### Progetti correlati
 
-- **[invoice-aws-ops](https://github.com/MaurizioLisanti/invoice-aws-ops)** — Pipeline AWS
+- **[sdi-ops-monitor](https://github.com/MaurizioLisanti/sdi-ops-monitor)** — Pipeline AWS
   per ricevere, archiviare e instradare i file FatturaPA da/verso il SDI.
   Da usare insieme a questo server MCP per dare a Claude visibilità end-to-end
   sulle operazioni di fatturazione elettronica italiana.
