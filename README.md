@@ -90,8 +90,7 @@ After restarting Claude Desktop you will see five new tools in the tool panel.
 ## Production status
 Used on real Italian electronic invoicing systems.
 Tested with real SDI documents in production environments.
-Part of a broader ecosystem:
-domain-agent-starter → fatturapa-mcp-server → sdi-ops-monitor
+Part of a broader ecosystem: fatturapa-mcp-server → sdi-ops-monitor
 ### Development setup
 
 ```bash
@@ -214,8 +213,7 @@ Dopo il riavvio di Claude Desktop, i cinque strumenti compariranno nel pannello 
   ## In produzione
 Usato su sistemi reali di fatturazione elettronica italiana.
 Testato con documenti SDI reali in ambiente di produzione.
-Parte di un ecosistema più ampio:
-domain-agent-starter → fatturapa-mcp-server → sdi-ops-monitor
+Parte di un ecosistema più ampio: fatturapa-mcp-server → sdi-ops-monitor
 
 ### Setup per lo sviluppo
 
