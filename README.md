@@ -91,7 +91,7 @@ After restarting Claude Desktop you will see five new tools in the tool panel.
 Used on real Italian electronic invoicing systems.
 Tested with real SDI documents in production environments.
 Part of a broader ecosystem:
-domain-agent-starter → fatturapa-mcp-server → invoice-aws-ops
+domain-agent-starter → fatturapa-mcp-server → sdi-ops-monitor
 ### Development setup
 
 ```bash
