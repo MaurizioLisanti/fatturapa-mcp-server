@@ -6,6 +6,7 @@ MCP server entry point for FatturaPA/SDI tools.
 
 from mcp.server.fastmcp import FastMCP
 
+from fatturapa_mcp.tools.anomalies import find_invoice_anomalies
 from fatturapa_mcp.tools.check_piva import check_piva
 from fatturapa_mcp.tools.extract import extract_invoice_data
 from fatturapa_mcp.tools.sdi_errors import lookup_sdi_error
@@ -20,6 +21,7 @@ mcp.tool()(extract_invoice_data)
 mcp.tool()(lookup_sdi_error)
 mcp.tool()(check_piva)
 mcp.tool()(verify_piva_vies)
+mcp.tool()(find_invoice_anomalies)
 
 
 @mcp.resource("fatturapa://roots")
