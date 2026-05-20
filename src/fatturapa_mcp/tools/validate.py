@@ -12,6 +12,7 @@ from lxml import etree
 from mcp.server.fastmcp import Context
 
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+from fatturapa_mcp.utils.roots import get_allowed_roots, is_path_allowed
 
 # FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
 # parameters are internal to the server session and not needed by tool implementations.
@@ -42,24 +43,42 @@ class ValidateResult(TypedDict):
 
 
 async def validate_invoice(
-    xml_content: str,
+    xml_content: str = "",
     ctx: _Ctx | None = None,
+    file_path: str | None = None,
 ) -> ValidateResult:
     """Validate a FatturaPA XML document against the appropriate XSD schema.
 
     Auto-detects schema version (v1.2 or v1.3) from the XML namespace.
     Returns a structured result without logging any XML content.
 
+    When *file_path* is given the document is read from disk; the path is
+    checked against the roots configured in ``FATTURAPA_ALLOWED_ROOTS`` before
+    any read is attempted.  Pass *xml_content* directly to skip file I/O.
+
     Args:
         xml_content: Raw XML string of the FatturaPA document.
         ctx: Optional MCP context for structured log emission.
+        file_path: Optional filesystem path to read the document from.
+            Checked against allowed roots before reading.
 
     Returns:
         A ValidateResult with keys:
             valid (bool): Whether the document passed XSD validation.
             version (str): Detected schema version ("1.2", "1.3", or "unknown").
             errors (list[str]): Validation error messages, empty if valid.
+
+    Raises:
+        PermissionError: If *file_path* is outside the configured allowed roots.
+        ValueError: If neither *xml_content* nor *file_path* is provided.
     """
+    if file_path is not None:
+        if not is_path_allowed(file_path, get_allowed_roots()):
+            raise PermissionError("Access denied: path is outside allowed roots.")
+        xml_content = Path(file_path).read_text(encoding="utf-8")
+    elif not xml_content:
+        raise ValueError("Provide either xml_content or file_path.")
+
     start = time.monotonic()
     await ctx_log(ctx, "validate_invoice.start", xml_length=len(xml_content))
 

@@ -5,6 +5,7 @@ MCP tool: extract_invoice_data — extracts key fields from a valid FatturaPA XM
 """
 
 import time
+from pathlib import Path
 from typing import Any, TypedDict
 
 from lxml import etree
@@ -12,6 +13,7 @@ from mcp.server.fastmcp import Context
 
 from fatturapa_mcp.tools.validate import _SAFE_PARSER
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+from fatturapa_mcp.utils.roots import get_allowed_roots, is_path_allowed
 
 # FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
 # parameters are internal to the server session and not needed by tool implementations.
@@ -156,8 +158,9 @@ def _extract_line_items(bodies: list[etree._Element]) -> list[LineItem]:
 
 
 async def extract_invoice_data(
-    xml_content: str,
+    xml_content: str = "",
     ctx: _Ctx | None = None,
+    file_path: str | None = None,
 ) -> ExtractResult:
     """Extract key fields from a validated FatturaPA XML document.
 
@@ -165,17 +168,32 @@ async def extract_invoice_data(
     metadata. Never logs or persists XML content — only derived values are
     returned. Missing fields yield None rather than raising KeyError.
 
+    When *file_path* is given the document is read from disk; the path is
+    checked against the roots configured in ``FATTURAPA_ALLOWED_ROOTS`` before
+    any read is attempted.  Pass *xml_content* directly to skip file I/O.
+
     Args:
         xml_content: Raw XML string of a validated FatturaPA document.
         ctx: Optional MCP context for structured log emission.
+        file_path: Optional filesystem path to read the document from.
+            Checked against allowed roots before reading.
 
     Returns:
         An ExtractResult TypedDict with supplier, customer, invoice header
         fields, and aggregated line_items from all body sections.
 
     Raises:
-        lxml.etree.XMLSyntaxError: If xml_content is not well-formed XML.
+        PermissionError: If *file_path* is outside the configured allowed roots.
+        ValueError: If neither *xml_content* nor *file_path* is provided.
+        lxml.etree.XMLSyntaxError: If the XML is not well-formed.
     """
+    if file_path is not None:
+        if not is_path_allowed(file_path, get_allowed_roots()):
+            raise PermissionError("Access denied: path is outside allowed roots.")
+        xml_content = Path(file_path).read_text(encoding="utf-8")
+    elif not xml_content:
+        raise ValueError("Provide either xml_content or file_path.")
+
     start = time.monotonic()
     await ctx_log(ctx, "extract_invoice_data.start", xml_length=len(xml_content))
 

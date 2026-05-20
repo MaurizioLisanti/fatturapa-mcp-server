@@ -1,5 +1,8 @@
 """Tests for the extract_invoice_data tool."""
 
+import os
+from pathlib import Path
+
 import pytest
 from lxml.etree import XMLSyntaxError
 
@@ -190,6 +193,42 @@ class TestExtractInvoiceDataCtxLogging:
         await extract_invoice_data(valid_v13_xml, ctx=ctx)  # type: ignore[arg-type]
         assert len(ctx.infos) == 2
         assert len(ctx.errors) == 0
+
+
+class TestExtractInvoiceDataFilePath:
+    """Tests for the file_path / roots-check integration."""
+
+    async def test_file_path_reads_and_extracts(
+        self, valid_v13_xml: str, tmp_path: Path
+    ) -> None:
+        """Providing a file_path within allowed roots reads and extracts data."""
+        invoice = tmp_path / "invoice.xml"
+        invoice.write_text(valid_v13_xml, encoding="utf-8")
+        env_backup = os.environ.pop("FATTURAPA_ALLOWED_ROOTS", None)
+        try:
+            result = await extract_invoice_data(file_path=str(invoice))
+            assert result["invoice_number"] == "2024/001"
+        finally:
+            if env_backup is not None:
+                os.environ["FATTURAPA_ALLOWED_ROOTS"] = env_backup
+
+    async def test_file_path_outside_roots_raises(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A file_path outside the allowed roots raises PermissionError."""
+        allowed = tmp_path / "allowed"
+        allowed.mkdir()
+        outside = tmp_path / "outside" / "inv.xml"
+        outside.parent.mkdir()
+        outside.write_text("<x/>", encoding="utf-8")
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(allowed))
+        with pytest.raises(PermissionError):
+            await extract_invoice_data(file_path=str(outside))
+
+    async def test_neither_xml_nor_file_path_raises(self) -> None:
+        """Passing neither xml_content nor file_path raises ValueError."""
+        with pytest.raises(ValueError):
+            await extract_invoice_data()
 
 
 class TestExtractInvoiceDataProgress:
