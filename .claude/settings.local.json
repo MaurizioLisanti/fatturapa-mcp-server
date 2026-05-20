@@ -5,7 +5,22 @@
       "Bash(ruff format *)",
       "Bash(python *)",
       "Bash(pip install *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(twine check *)",
+      "Bash(twine upload *)",
+      "Bash(git tag *)",
+      "Bash(make check *)",
+      "Bash(mypy *)",
+      "Bash(pytest *)",
+      "Bash(bandit *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(git commit *)",
+      "Bash(git pull *)",
+      "Bash(git stash *)"
     ]
   }
 }
