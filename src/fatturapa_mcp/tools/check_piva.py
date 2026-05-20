@@ -4,7 +4,16 @@ fatturapa_mcp.tools.check_piva
 MCP tool: check_piva — validates an Italian VAT number (P.IVA) via checksum.
 """
 
-from typing import TypedDict
+import time
+from typing import Any, TypedDict
+
+from mcp.server.fastmcp import Context
+
+from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+
+# FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
+# parameters are internal to the server session and not needed by tool implementations.
+_Ctx = Context[Any, Any, Any]
 
 
 class CheckPivaResult(TypedDict):
@@ -15,7 +24,10 @@ class CheckPivaResult(TypedDict):
     reason: str | None
 
 
-def check_piva(piva: str) -> CheckPivaResult:
+async def check_piva(
+    piva: str,
+    ctx: _Ctx | None = None,
+) -> CheckPivaResult:
     """Validate an Italian VAT number using the official MEF checksum algorithm.
 
     Performs format validation and the Ministry of Economy checksum algorithm.
@@ -24,6 +36,7 @@ def check_piva(piva: str) -> CheckPivaResult:
     Args:
         piva: Italian VAT number string. May include or omit the "IT" prefix.
               Expected: 11 digits after stripping prefix and whitespace.
+        ctx: Optional MCP context for structured log emission.
 
     Returns:
         A CheckPivaResult with keys:
@@ -31,23 +44,36 @@ def check_piva(piva: str) -> CheckPivaResult:
             piva (str): Normalised P.IVA (11 digits, no prefix).
             reason (str | None): Failure reason if valid is False, else None.
     """
+    start = time.monotonic()
+    await ctx_log(ctx, "check_piva.start", input_length=len(piva.strip()))
+
+    # Step 1 — normalise input
+    if ctx:
+        await ctx.report_progress(1, 3)
+
     normalised = piva.strip().upper()
     if normalised.startswith("IT"):
         normalised = normalised[2:]
 
     if not normalised.isdigit():
-        return CheckPivaResult(
-            valid=False,
-            piva=normalised,
-            reason="La P.IVA deve contenere solo cifre.",
+        result = CheckPivaResult(
+            valid=False, piva=normalised, reason="La P.IVA deve contenere solo cifre."
         )
+        await ctx_log(ctx, "check_piva.done", valid=False, elapsed_ms=elapsed_ms(start))
+        return result
 
     if len(normalised) != 11:
-        return CheckPivaResult(
+        result = CheckPivaResult(
             valid=False,
             piva=normalised,
             reason=f"La P.IVA deve essere di 11 cifre; fornite {len(normalised)}.",
         )
+        await ctx_log(ctx, "check_piva.done", valid=False, elapsed_ms=elapsed_ms(start))
+        return result
+
+    # Step 2 — checksum computation
+    if ctx:
+        await ctx.report_progress(2, 3)
 
     digits = [int(c) for c in normalised]
 
@@ -62,13 +88,18 @@ def check_piva(piva: str) -> CheckPivaResult:
 
     expected_check = (10 - (s_odd + s_even) % 10) % 10
     if digits[10] != expected_check:
-        return CheckPivaResult(
-            valid=False,
-            piva=normalised,
-            reason=(
-                f"Checksum non valido: cifra di controllo attesa {expected_check}, "
-                f"trovata {digits[10]}."
-            ),
+        reason = (
+            f"Checksum non valido: cifra di controllo attesa {expected_check},"
+            f" trovata {digits[10]}."
         )
+        result = CheckPivaResult(valid=False, piva=normalised, reason=reason)
+        await ctx_log(ctx, "check_piva.done", valid=False, elapsed_ms=elapsed_ms(start))
+        return result
 
-    return CheckPivaResult(valid=True, piva=normalised, reason=None)
+    # Step 3 — completion
+    if ctx:
+        await ctx.report_progress(3, 3)
+
+    result = CheckPivaResult(valid=True, piva=normalised, reason=None)
+    await ctx_log(ctx, "check_piva.done", valid=True, elapsed_ms=elapsed_ms(start))
+    return result

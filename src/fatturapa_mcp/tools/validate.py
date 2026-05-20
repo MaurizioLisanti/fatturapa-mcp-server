@@ -4,10 +4,18 @@ fatturapa_mcp.tools.validate
 MCP tool: validate_invoice — validates a FatturaPA XML against XSD schemas v1.2/v1.3.
 """
 
+import time
 from pathlib import Path
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from lxml import etree
+from mcp.server.fastmcp import Context
+
+from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+
+# FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
+# parameters are internal to the server session and not needed by tool implementations.
+_Ctx = Context[Any, Any, Any]
 
 _SCHEMAS_DIR = Path(__file__).parent.parent / "schemas"
 
@@ -33,7 +41,10 @@ class ValidateResult(TypedDict):
     errors: list[str]
 
 
-def validate_invoice(xml_content: str) -> ValidateResult:
+async def validate_invoice(
+    xml_content: str,
+    ctx: _Ctx | None = None,
+) -> ValidateResult:
     """Validate a FatturaPA XML document against the appropriate XSD schema.
 
     Auto-detects schema version (v1.2 or v1.3) from the XML namespace.
@@ -41,6 +52,7 @@ def validate_invoice(xml_content: str) -> ValidateResult:
 
     Args:
         xml_content: Raw XML string of the FatturaPA document.
+        ctx: Optional MCP context for structured log emission.
 
     Returns:
         A ValidateResult with keys:
@@ -48,25 +60,51 @@ def validate_invoice(xml_content: str) -> ValidateResult:
             version (str): Detected schema version ("1.2", "1.3", or "unknown").
             errors (list[str]): Validation error messages, empty if valid.
     """
+    start = time.monotonic()
+    await ctx_log(ctx, "validate_invoice.start", xml_length=len(xml_content))
+
+    # Step 1 — parse input
+    if ctx:
+        await ctx.report_progress(1, 3)
+
     try:
         root = etree.fromstring(xml_content.encode("utf-8"), _SAFE_PARSER)
     except etree.XMLSyntaxError as exc:
-        return {"valid": False, "version": "unknown", "errors": [str(exc)]}
+        result: ValidateResult = {
+            "valid": False,
+            "version": "unknown",
+            "errors": [str(exc)],
+        }
+        await ctx_log(
+            ctx,
+            "validate_invoice.done",
+            level="error",
+            valid=False,
+            elapsed_ms=elapsed_ms(start),
+        )
+        return result
 
     tag = root.tag
     ns = tag[1 : tag.index("}")] if tag.startswith("{") else ""
-
     version = _NS_TO_VERSION.get(ns)
     if version is None:
-        return {
+        result = {
             "valid": False,
             "version": "unknown",
             "errors": [f"Unrecognised FatturaPA namespace: {ns!r}"],
         }
+        await ctx_log(
+            ctx,
+            "validate_invoice.done",
+            level="error",
+            valid=False,
+            elapsed_ms=elapsed_ms(start),
+        )
+        return result
 
     xsd_path = _SCHEMAS_DIR / _VERSION_TO_XSD[version]
     if not xsd_path.is_file():
-        return {
+        result = {
             "valid": False,
             "version": version,
             "errors": [
@@ -74,11 +112,37 @@ def validate_invoice(xml_content: str) -> ValidateResult:
                 "See src/fatturapa_mcp/schemas/README.md for download instructions."
             ],
         }
+        await ctx_log(
+            ctx,
+            "validate_invoice.done",
+            level="warning",
+            valid=False,
+            version=version,
+            elapsed_ms=elapsed_ms(start),
+        )
+        return result
+
+    # Step 2 — XSD validation
+    if ctx:
+        await ctx.report_progress(2, 3)
 
     xsd_doc = etree.parse(str(xsd_path), _SAFE_PARSER)
     schema = etree.XMLSchema(xsd_doc)
     valid = schema.validate(root)
     # lxml-stubs omits __iter__ on _ErrorLog; the runtime type is _ListErrorLog.
     errors = [str(e) for e in schema.error_log]  # type: ignore[attr-defined]
+    result = {"valid": valid, "version": version, "errors": errors}
+    await ctx_log(
+        ctx,
+        "validate_invoice.done",
+        valid=valid,
+        version=version,
+        error_count=len(errors),
+        elapsed_ms=elapsed_ms(start),
+    )
 
-    return {"valid": valid, "version": version, "errors": errors}
+    # Step 3 — completion
+    if ctx:
+        await ctx.report_progress(3, 3)
+
+    return result

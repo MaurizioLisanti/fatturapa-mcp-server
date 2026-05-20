@@ -4,7 +4,16 @@ fatturapa_mcp.tools.sdi_errors
 MCP tool: lookup_sdi_error — looks up SDI (Sistema di Interscambio) error codes.
 """
 
-from typing import TypedDict
+import time
+from typing import Any, TypedDict
+
+from mcp.server.fastmcp import Context
+
+from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+
+# FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
+# parameters are internal to the server session and not needed by tool implementations.
+_Ctx = Context[Any, Any, Any]
 
 # ---------------------------------------------------------------------------
 # Static error table — sourced from AdE "Allegato C" (technical specifications
@@ -349,7 +358,10 @@ class LookupResult(TypedDict):
     resolution: str
 
 
-def lookup_sdi_error(error_code: str) -> LookupResult:
+async def lookup_sdi_error(
+    error_code: str,
+    ctx: _Ctx | None = None,
+) -> LookupResult:
     """Look up an SDI error code and return its human-readable description.
 
     Uses a local static table of official AdE error codes.
@@ -357,6 +369,7 @@ def lookup_sdi_error(error_code: str) -> LookupResult:
 
     Args:
         error_code: SDI error code string (e.g., "00001", "00002").
+        ctx: Optional MCP context for structured log emission.
 
     Returns:
         A LookupResult with keys:
@@ -368,12 +381,44 @@ def lookup_sdi_error(error_code: str) -> LookupResult:
     Raises:
         ValueError: If *error_code* is not found in the known error table.
     """
+    start = time.monotonic()
+    await ctx_log(ctx, "lookup_sdi_error.start", error_code=error_code)
+
+    # Step 1 — parse input
+    if ctx:
+        await ctx.report_progress(1, 3)
+
     entry = _SDI_ERRORS.get(error_code)
     if entry is None:
+        await ctx_log(
+            ctx,
+            "lookup_sdi_error.done",
+            level="warning",
+            found=False,
+            elapsed_ms=elapsed_ms(start),
+        )
         raise ValueError(f"Unknown SDI error code: {error_code!r}")
-    return LookupResult(
+
+    # Step 2 — lookup matched
+    if ctx:
+        await ctx.report_progress(2, 3)
+
+    result = LookupResult(
         code=error_code,
         description=entry["description"],
         category=entry["category"],
         resolution=entry["resolution"],
     )
+
+    # Step 3 — completion
+    if ctx:
+        await ctx.report_progress(3, 3)
+
+    await ctx_log(
+        ctx,
+        "lookup_sdi_error.done",
+        found=True,
+        category=entry["category"],
+        elapsed_ms=elapsed_ms(start),
+    )
+    return result

@@ -4,6 +4,7 @@ import pytest
 from lxml.etree import XMLSyntaxError
 
 from fatturapa_mcp.tools.extract import extract_invoice_data
+from tests.conftest import MockCtx
 
 # Minimal valid XML — well-formed but all payload fields absent.
 _MINIMAL_XML = (
@@ -62,68 +63,74 @@ class TestExtractInvoiceData:
     # Supplier fields — v1.3 fixture
     # ------------------------------------------------------------------
 
-    def test_extracts_supplier_name_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_supplier_name_v13(self, valid_v13_xml: str) -> None:
         """Supplier Denominazione is returned as supplier_name."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["supplier_name"] == "Test Fornitore Srl"
 
-    def test_extracts_supplier_piva_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_supplier_piva_v13(self, valid_v13_xml: str) -> None:
         """Supplier P.IVA is IdPaese+IdCodice concatenated."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["supplier_piva"] == "IT12345678901"
 
-    def test_supplier_tax_code_absent_returns_none(self, valid_v13_xml: str) -> None:
+    async def test_supplier_tax_code_absent_returns_none(
+        self, valid_v13_xml: str
+    ) -> None:
         """supplier_tax_code is None when CodiceFiscale is absent in the fixture."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["supplier_tax_code"] is None
 
     # ------------------------------------------------------------------
     # Customer fields — v1.3 fixture
     # ------------------------------------------------------------------
 
-    def test_extracts_customer_name_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_customer_name_v13(self, valid_v13_xml: str) -> None:
         """Customer Denominazione is returned as customer_name."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["customer_name"] == "Test Cliente Srl"
 
-    def test_extracts_customer_piva_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_customer_piva_v13(self, valid_v13_xml: str) -> None:
         """Customer P.IVA is IdPaese+IdCodice concatenated."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["customer_piva"] == "IT98765432109"
 
     # ------------------------------------------------------------------
     # Invoice header fields — v1.3 fixture
     # ------------------------------------------------------------------
 
-    def test_extracts_invoice_number_and_date_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_invoice_number_and_date_v13(
+        self, valid_v13_xml: str
+    ) -> None:
         """invoice_number and invoice_date are extracted from DatiGeneraliDocumento."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["invoice_number"] == "2024/001"
         assert result["invoice_date"] == "2024-01-15"
 
-    def test_extracts_document_type_and_currency_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_document_type_and_currency_v13(
+        self, valid_v13_xml: str
+    ) -> None:
         """document_type and currency are extracted correctly."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["document_type"] == "TD01"
         assert result["currency"] == "EUR"
 
-    def test_extracts_total_amount_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_total_amount_v13(self, valid_v13_xml: str) -> None:
         """total_amount matches ImportoTotaleDocumento from the v1.3 fixture."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert result["total_amount"] == pytest.approx(122.0)
 
     # ------------------------------------------------------------------
     # Line items — v1.3 fixture
     # ------------------------------------------------------------------
 
-    def test_extracts_one_line_item_v13(self, valid_v13_xml: str) -> None:
+    async def test_extracts_one_line_item_v13(self, valid_v13_xml: str) -> None:
         """One DettaglioLinee entry is extracted from the v1.3 fixture."""
-        result = extract_invoice_data(valid_v13_xml)
+        result = await extract_invoice_data(valid_v13_xml)
         assert len(result["line_items"]) == 1
 
-    def test_line_item_fields_v13(self, valid_v13_xml: str) -> None:
+    async def test_line_item_fields_v13(self, valid_v13_xml: str) -> None:
         """Line item fields match the v1.3 fixture values."""
-        item = extract_invoice_data(valid_v13_xml)["line_items"][0]
+        item = (await extract_invoice_data(valid_v13_xml))["line_items"][0]
         assert item["line_number"] == 1
         assert item["description"] == "Servizio di test"
         assert item["quantity"] == pytest.approx(1.0)
@@ -135,9 +142,9 @@ class TestExtractInvoiceData:
     # v1.2 fixture
     # ------------------------------------------------------------------
 
-    def test_extracts_basic_fields_from_v12(self, valid_v12_xml: str) -> None:
+    async def test_extracts_basic_fields_from_v12(self, valid_v12_xml: str) -> None:
         """Key fields are extracted from a v1.2 fixture without errors."""
-        result = extract_invoice_data(valid_v12_xml)
+        result = await extract_invoice_data(valid_v12_xml)
         assert result["supplier_piva"] == "IT12345678901"
         assert result["invoice_number"] == "2023/042"
         assert result["total_amount"] == pytest.approx(244.0)
@@ -146,9 +153,9 @@ class TestExtractInvoiceData:
     # Edge cases
     # ------------------------------------------------------------------
 
-    def test_minimal_xml_all_fields_none(self) -> None:
+    async def test_minimal_xml_all_fields_none(self) -> None:
         """All optional fields are None when the XML has no payload elements."""
-        result = extract_invoice_data(_MINIMAL_XML)
+        result = await extract_invoice_data(_MINIMAL_XML)
         assert result["invoice_number"] is None
         assert result["invoice_date"] is None
         assert result["total_amount"] is None
@@ -158,17 +165,43 @@ class TestExtractInvoiceData:
         assert result["customer_piva"] is None
         assert result["line_items"] == []
 
-    def test_nome_cognome_fallback(self) -> None:
+    async def test_nome_cognome_fallback(self) -> None:
         """supplier_name falls back to Nome+Cognome when Denominazione is absent."""
-        result = extract_invoice_data(_XML_NOME_COGNOME)
+        result = await extract_invoice_data(_XML_NOME_COGNOME)
         assert result["supplier_name"] == "Mario Rossi"
 
-    def test_total_from_dati_riepilogo_fallback(self) -> None:
+    async def test_total_from_dati_riepilogo_fallback(self) -> None:
         """total_amount sums ImponibileImporto+Imposta when ImportoTotale is absent."""
-        result = extract_invoice_data(_XML_NOME_COGNOME)
+        result = await extract_invoice_data(_XML_NOME_COGNOME)
         assert result["total_amount"] == pytest.approx(244.0)
 
-    def test_malformed_xml_raises(self, invalid_xml: str) -> None:
+    async def test_malformed_xml_raises(self, invalid_xml: str) -> None:
         """Malformed XML propagates XMLSyntaxError from lxml."""
         with pytest.raises(XMLSyntaxError):
-            extract_invoice_data(invalid_xml)
+            await extract_invoice_data(invalid_xml)
+
+
+class TestExtractInvoiceDataCtxLogging:
+    """Verify ctx log calls are emitted with correct structure."""
+
+    async def test_emits_start_and_done(self, valid_v13_xml: str) -> None:
+        """A successful extraction produces exactly two info log entries."""
+        ctx = MockCtx()
+        await extract_invoice_data(valid_v13_xml, ctx=ctx)  # type: ignore[arg-type]
+        assert len(ctx.infos) == 2
+        assert len(ctx.errors) == 0
+
+
+class TestExtractInvoiceDataProgress:
+    """Verify progress notifications are emitted in the correct order."""
+
+    async def test_happy_path_emits_three_steps(self, valid_v13_xml: str) -> None:
+        """Happy path reports steps 1/3, 2/3, 3/3 in order."""
+        ctx = MockCtx()
+        await extract_invoice_data(valid_v13_xml, ctx=ctx)  # type: ignore[arg-type]
+        assert ctx.progress == [(1, 3), (2, 3), (3, 3)]
+
+    async def test_no_ctx_does_not_raise(self, valid_v13_xml: str) -> None:
+        """Calling without ctx must not raise."""
+        result = await extract_invoice_data(valid_v13_xml, ctx=None)
+        assert result["invoice_number"] == "2024/001"

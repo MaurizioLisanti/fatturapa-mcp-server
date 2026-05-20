@@ -4,11 +4,18 @@ fatturapa_mcp.tools.extract
 MCP tool: extract_invoice_data — extracts key fields from a valid FatturaPA XML.
 """
 
-from typing import TypedDict
+import time
+from typing import Any, TypedDict
 
 from lxml import etree
+from mcp.server.fastmcp import Context
 
 from fatturapa_mcp.tools.validate import _SAFE_PARSER
+from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
+
+# FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
+# parameters are internal to the server session and not needed by tool implementations.
+_Ctx = Context[Any, Any, Any]
 
 
 class LineItem(TypedDict):
@@ -148,7 +155,10 @@ def _extract_line_items(bodies: list[etree._Element]) -> list[LineItem]:
 # ---------------------------------------------------------------------------
 
 
-def extract_invoice_data(xml_content: str) -> ExtractResult:
+async def extract_invoice_data(
+    xml_content: str,
+    ctx: _Ctx | None = None,
+) -> ExtractResult:
     """Extract key fields from a validated FatturaPA XML document.
 
     Parses the header and first body section to return structured invoice
@@ -157,6 +167,7 @@ def extract_invoice_data(xml_content: str) -> ExtractResult:
 
     Args:
         xml_content: Raw XML string of a validated FatturaPA document.
+        ctx: Optional MCP context for structured log emission.
 
     Returns:
         An ExtractResult TypedDict with supplier, customer, invoice header
@@ -165,12 +176,24 @@ def extract_invoice_data(xml_content: str) -> ExtractResult:
     Raises:
         lxml.etree.XMLSyntaxError: If xml_content is not well-formed XML.
     """
+    start = time.monotonic()
+    await ctx_log(ctx, "extract_invoice_data.start", xml_length=len(xml_content))
+
+    # Step 1 — parse input
+    if ctx:
+        await ctx.report_progress(1, 3)
+
     root = etree.fromstring(xml_content.encode("utf-8"), _SAFE_PARSER)
+
+    # Step 2 — extract fields
+    if ctx:
+        await ctx.report_progress(2, 3)
+
     header = root.find("FatturaElettronicaHeader")
     bodies = root.findall("FatturaElettronicaBody")
     body = bodies[0] if bodies else None
     dgd = body.find("DatiGenerali/DatiGeneraliDocumento") if body is not None else None
-    return {
+    result: ExtractResult = {
         "invoice_number": dgd.findtext("Numero") if dgd is not None else None,
         "invoice_date": dgd.findtext("Data") if dgd is not None else None,
         "document_type": dgd.findtext("TipoDocumento") if dgd is not None else None,
@@ -184,3 +207,15 @@ def extract_invoice_data(xml_content: str) -> ExtractResult:
         "customer_tax_code": _extract_tax_code(header, "CessionarioCommittente"),
         "line_items": _extract_line_items(bodies),
     }
+    # Step 3 — completion
+    if ctx:
+        await ctx.report_progress(3, 3)
+
+    await ctx_log(
+        ctx,
+        "extract_invoice_data.done",
+        has_invoice_number=result["invoice_number"] is not None,
+        line_count=len(result["line_items"]),
+        elapsed_ms=elapsed_ms(start),
+    )
+    return result
