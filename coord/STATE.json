@@ -71,7 +71,7 @@
     "A5: Nessuna autenticazione sul server MCP"
   ],
   "open_halts": [],
-  "last_updated": "2026-05-20T17:35:00+02:00",
+  "last_updated": "2026-05-20T17:47:00+02:00",
   "wave_3": {
     "status": "DONE",
     "tasks": {
@@ -98,12 +98,17 @@
     }
   },
   "wave_4": {
-    "status": "IN_PROGRESS",
+    "status": "DONE",
     "tasks": {
       "TASK_find_invoice_anomalies": {
         "status": "DONE",
         "handoff": "coord/HANDOFF_find_invoice_anomalies.md",
         "last_updated": "2026-05-20T17:35:00+02:00"
+      },
+      "TASK_generate_invoice_report": {
+        "status": "DONE",
+        "handoff": "coord/HANDOFF_generate_invoice_report.md",
+        "last_updated": "2026-05-20T17:47:00+02:00"
       }
     }
   }
