@@ -1,7 +1,7 @@
 # fatturapa-mcp-server
 
 [![CI](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions)
+[![Coverage](https://img.shields.io/badge/coverage-95.5%25-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -16,10 +16,11 @@ The result: weeks of repeated work,
 hidden bugs and no standardization.
 
 ## The solution
-Five production-grade AI tools installable
+Seven production-grade AI tools installable
 in one line — official AdE XSD validation,
 full document parsing, offline SDI error lookup,
-Italian and EU VAT verification via VIES.
+Italian and EU VAT verification via VIES,
+anomaly detection and multi-invoice reporting.
 ## Who is it for
 Python developers and AI teams working
 on Italian electronic invoicing systems
@@ -29,7 +30,7 @@ from scratch on every project.
 ### What is this?
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that gives
-AI assistants five ready-to-use tools for working with Italian electronic invoices
+AI assistants seven ready-to-use tools for working with Italian electronic invoices
 (FatturaPA) and the SDI (Sistema di Interscambio) system — no plumbing required.
 
 ### Tools
@@ -41,6 +42,8 @@ AI assistants five ready-to-use tools for working with Italian electronic invoic
 | `lookup_sdi_error` | `error_code` | Returns the official Italian description, category and resolution hint for any SDI error code (offline) |
 | `check_piva` | `piva` | Validates an Italian P.IVA (VAT number) using the official MEF checksum algorithm — no network call |
 | `verify_piva_vies` | `country_code`, `vat_number` | Verifies any EU VAT number against the live VIES REST API; degrades gracefully when the service is down |
+| `find_invoice_anomalies` | `xml_content` | Detects anomalies in a FatturaPA XML document: inconsistent totals, wrong VAT, future dates, invalid P.IVA, missing recipient, incomplete line items, negative amounts, missing payment info |
+| `generate_invoice_report` | `xml_contents` | Aggregates multiple FatturaPA XML documents into a single report with statistics, supplier/customer breakdown and anomaly summary |
 
 ### Quick start
 
@@ -75,16 +78,27 @@ Add the following block to your Claude Desktop config file:
 }
 ```
 
-After restarting Claude Desktop you will see five new tools in the tool panel.
+After restarting Claude Desktop you will see seven new tools in the tool panel.
 
 > **Note on XSD schemas:** `validate_invoice` requires the official AdE XSD files.
 > See [`src/fatturapa_mcp/schemas/README.md`](src/fatturapa_mcp/schemas/README.md)
 > for download instructions.
 
+## Changelog / Release history
+
+| Wave | Tools / Features | Release |
+|------|-----------------|---------|
+| Wave 1 | `validate_invoice`, `extract_invoice_data`, `lookup_sdi_error`, `check_piva`, `verify_piva_vies` | v0.1.0 |
+| Wave 2 | PyPI publication, CI/CD, security audit, full coverage | v0.1.0 |
+| Wave 3 | Context propagation, structured logging, progress reporting, roots-based secure file access | v0.1.x |
+| Wave 4 | `find_invoice_anomalies`, `generate_invoice_report` | v0.2.0 |
+
+**v0.2.0 stats:** 7 tools · 162 tests · 95.5% coverage
+
 ## What it demonstrates
 - Production-grade MCP server with strict mypy typing
 - Automated security audit — bandit + pip-audit
-- Guaranteed 80% minimum coverage
+- Guaranteed 80% minimum coverage (currently 95.5% across 162 tests)
 - Published on PyPI — installable anywhere in one line
 - Bilingual IT/EN — built for Italian and international market
 ## Production status
@@ -141,10 +155,11 @@ di validazione, parsing e gestione errori SDI.
 Il risultato: settimane di lavoro ripetuto,
 bug nascosti e nessuna standardizzazione.
 ## La soluzione
-Cinque tool AI production-grade installabili
+Sette tool AI production-grade installabili
 in una riga — validazione XSD ufficiale AdE,
 parsing completo, lookup errori SDI offline,
-verifica P.IVA italiana ed europea via VIES.
+verifica P.IVA italiana ed europea via VIES,
+rilevamento anomalie e report multi-fattura.
 ## Per chi è
 Developer Python e team AI che lavorano
 su sistemi di fatturazione elettronica italiana
@@ -153,7 +168,7 @@ la compliance FatturaPA da zero ad ogni progetto.
 ### Cos'è questo progetto?
 
 Un server [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) che
-fornisce agli assistenti AI cinque strumenti pronti all'uso per lavorare con le
+fornisce agli assistenti AI sette strumenti pronti all'uso per lavorare con le
 fatture elettroniche italiane (FatturaPA) e il Sistema di Interscambio (SDI).
 
 ### Strumenti disponibili
@@ -165,6 +180,8 @@ fatture elettroniche italiane (FatturaPA) e il Sistema di Interscambio (SDI).
 | `lookup_sdi_error` | `error_code` | Restituisce la descrizione ufficiale italiana, la categoria e il suggerimento di risoluzione per qualsiasi codice errore SDI (offline) |
 | `check_piva` | `piva` | Valida una P.IVA italiana tramite l'algoritmo di checksum ufficiale MEF — nessuna chiamata di rete |
 | `verify_piva_vies` | `country_code`, `vat_number` | Verifica qualsiasi partita IVA UE contro l'API REST VIES in tempo reale; risponde in modo degradato se il servizio è irraggiungibile |
+| `find_invoice_anomalies` | `xml_content` | Rileva anomalie in un documento FatturaPA XML: totale incoerente, IVA errata, data futura, P.IVA invalida, destinatario mancante, righe incomplete, importo negativo, pagamento mancante |
+| `generate_invoice_report` | `xml_contents` | Aggrega più documenti FatturaPA XML in un unico report con statistiche, riepilogo fornitori/clienti e analisi delle anomalie |
 
 ### Avvio rapido
 
@@ -199,15 +216,26 @@ Aggiungere il seguente blocco al file di configurazione di Claude Desktop:
 }
 ```
 
-Dopo il riavvio di Claude Desktop, i cinque strumenti compariranno nel pannello degli strumenti.
+Dopo il riavvio di Claude Desktop, i sette strumenti compariranno nel pannello degli strumenti.
 
 > **Nota sugli XSD:** `validate_invoice` richiede i file XSD ufficiali di AdE.
 > Vedere [`src/fatturapa_mcp/schemas/README.md`](src/fatturapa_mcp/schemas/README.md)
 > per le istruzioni di download.
+## Changelog / Storico release
+
+| Wave | Tool / Funzionalità | Release |
+|------|---------------------|---------|
+| Wave 1 | `validate_invoice`, `extract_invoice_data`, `lookup_sdi_error`, `check_piva`, `verify_piva_vies` | v0.1.0 |
+| Wave 2 | Pubblicazione PyPI, CI/CD, security audit, coverage completa | v0.1.0 |
+| Wave 3 | Propagazione contesto, logging strutturato, progress reporting, accesso file sicuro via roots | v0.1.x |
+| Wave 4 | `find_invoice_anomalies`, `generate_invoice_report` | v0.2.0 |
+
+**Statistiche v0.2.0:** 7 tool · 162 test · 95.5% coverage
+
 ## Cosa dimostra tecnicamente
 - MCP server production-grade con strict typing mypy
 - Security audit automatico — bandit + pip-audit
-- Coverage minima garantita all'80%
+- Coverage minima garantita all'80% (attualmente 95.5% su 162 test)
 - Pubblicato su PyPI — installabile ovunque con una riga
 - Bilingue IT/EN — pensato per mercato italiano e internazionale
   ## In produzione
