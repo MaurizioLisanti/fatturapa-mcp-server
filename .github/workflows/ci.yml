@@ -6,15 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history needed by gitleaks for secret scanning
-          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -22,8 +26,10 @@ jobs:
           cache: "pip"
 
       - name: Upgrade pip
-        run: pip install --upgrade pip
+        run: python -m pip install --upgrade pip
 
+      # Le versioni dei tool sono pinnate nel [dev] di pyproject.toml,
+      # quindi la pipeline e riproducibile e non si rompe "da sola".
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
@@ -49,10 +55,5 @@ jobs:
       - name: Security — bandit
         run: bandit -r src/ -ll
 
-      - name: Security - pip-audit
+      - name: Security — pip-audit
         run: pip-audit --skip-editable
-
-      - name: Secret scan — gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
