@@ -1,6 +1,5 @@
 """Tests for the extract_invoice_data tool."""
 
-import os
 from pathlib import Path
 
 import pytest
@@ -199,18 +198,14 @@ class TestExtractInvoiceDataFilePath:
     """Tests for the file_path / roots-check integration."""
 
     async def test_file_path_reads_and_extracts(
-        self, valid_v13_xml: str, tmp_path: Path
+        self, valid_v13_xml: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Providing a file_path within allowed roots reads and extracts data."""
         invoice = tmp_path / "invoice.xml"
         invoice.write_text(valid_v13_xml, encoding="utf-8")
-        env_backup = os.environ.pop("FATTURAPA_ALLOWED_ROOTS", None)
-        try:
-            result = await extract_invoice_data(file_path=str(invoice))
-            assert result["invoice_number"] == "2024/001"
-        finally:
-            if env_backup is not None:
-                os.environ["FATTURAPA_ALLOWED_ROOTS"] = env_backup
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(tmp_path))
+        result = await extract_invoice_data(file_path=str(invoice))
+        assert result["invoice_number"] == "2024/001"
 
     async def test_file_path_outside_roots_raises(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

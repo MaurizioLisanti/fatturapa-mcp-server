@@ -1,6 +1,5 @@
 """Tests for the validate_invoice tool."""
 
-import os
 from pathlib import Path
 
 import pytest
@@ -118,18 +117,14 @@ class TestValidateInvoiceFilePath:
     """Tests for the file_path / roots-check integration."""
 
     async def test_file_path_reads_and_validates(
-        self, valid_v13_xml: str, tmp_path: Path
+        self, valid_v13_xml: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Providing a file_path within allowed roots reads and validates the file."""
         invoice = tmp_path / "invoice.xml"
         invoice.write_text(valid_v13_xml, encoding="utf-8")
-        env_backup = os.environ.pop("FATTURAPA_ALLOWED_ROOTS", None)
-        try:
-            result = await validate_invoice(file_path=str(invoice))
-            assert result["valid"] is True
-        finally:
-            if env_backup is not None:
-                os.environ["FATTURAPA_ALLOWED_ROOTS"] = env_backup
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(tmp_path))
+        result = await validate_invoice(file_path=str(invoice))
+        assert result["valid"] is True
 
     async def test_file_path_outside_roots_raises(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

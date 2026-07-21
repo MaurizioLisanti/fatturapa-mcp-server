@@ -1,6 +1,5 @@
 """Tests for the find_invoice_anomalies tool."""
 
-import os
 from pathlib import Path
 
 import pytest
@@ -275,17 +274,15 @@ class TestFindInvoiceAnomaliesCtx:
 class TestFindInvoiceAnomaliesFilePath:
     """file_path / roots-check integration."""
 
-    async def test_file_path_within_roots(self, tmp_path: Path) -> None:
+    async def test_file_path_within_roots(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Providing a file_path within allowed roots reads and analyses the invoice."""
         invoice = tmp_path / "invoice.xml"
         invoice.write_text(_CLEAN_XML, encoding="utf-8")
-        env_backup = os.environ.pop("FATTURAPA_ALLOWED_ROOTS", None)
-        try:
-            result = await find_invoice_anomalies(file_path=str(invoice))
-            assert result["is_clean"] is True
-        finally:
-            if env_backup is not None:
-                os.environ["FATTURAPA_ALLOWED_ROOTS"] = env_backup
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(tmp_path))
+        result = await find_invoice_anomalies(file_path=str(invoice))
+        assert result["is_clean"] is True
 
     async def test_file_path_outside_roots_raises(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

@@ -5,9 +5,22 @@ from pathlib import Path
 
 import pytest
 
-from fatturapa_mcp.utils.roots import get_allowed_roots, is_path_allowed
+from fatturapa_mcp.utils.roots import (
+    ensure_path_allowed,
+    get_allowed_roots,
+    is_path_allowed,
+    is_unrestricted_mode,
+)
+
 
 # ---------------------------------------------------------------------------
+@pytest.fixture(autouse=True)
+def _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Isolate every test from the developer's own environment variables."""
+    monkeypatch.delenv("FATTURAPA_ALLOWED_ROOTS", raising=False)
+    monkeypatch.delenv("FATTURAPA_ALLOW_ALL_PATHS", raising=False)
+
+
 # is_path_allowed
 # ---------------------------------------------------------------------------
 
@@ -39,9 +52,9 @@ class TestIsPathAllowed:
         # resolves to tmp_path / other.xml — outside `allowed`
         assert is_path_allowed(escape, [allowed]) is False
 
-    def test_empty_roots_permits_any_path(self, tmp_path: Path) -> None:
-        """Empty allowed_roots enables backward-compatible open mode."""
-        assert is_path_allowed(tmp_path / "anything.xml", []) is True
+    def test_empty_roots_denies_any_path(self, tmp_path: Path) -> None:
+        """With no roots configured the guard fails closed."""
+        assert is_path_allowed(tmp_path / "anything.xml", []) is False
 
     def test_relative_path_is_resolved_before_check(self, tmp_path: Path) -> None:
         """A relative path is resolved to absolute before comparison."""
@@ -129,3 +142,70 @@ class TestGetAllowedRoots:
         monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", f"  {tmp_path}  ")
         result = get_allowed_roots()
         assert result == [tmp_path]
+
+
+class TestUnrestrictedMode:
+    """The escape hatch must be explicit, and only accept explicit values."""
+
+    @pytest.mark.parametrize("value", ["1", "true", "TRUE", "yes", "on"])
+    def test_recognised_truthy_values_enable_open_mode(
+        self, value: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Documented opt-in values switch the guard off."""
+        monkeypatch.setenv("FATTURAPA_ALLOW_ALL_PATHS", value)
+        assert is_unrestricted_mode() is True
+
+    @pytest.mark.parametrize("value", ["", "0", "false", "no", "maybe", " "])
+    def test_other_values_leave_guard_active(
+        self, value: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Anything else keeps the guard on — no accidental opt-out."""
+        monkeypatch.setenv("FATTURAPA_ALLOW_ALL_PATHS", value)
+        assert is_unrestricted_mode() is False
+
+    def test_open_mode_permits_path_outside_roots(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """With the opt-in set, an unlisted path is readable again."""
+        monkeypatch.setenv("FATTURAPA_ALLOW_ALL_PATHS", "1")
+        assert is_path_allowed(tmp_path / "anything.xml", []) is True
+
+
+class TestEnsurePathAllowed:
+    """The raising wrapper must explain which of the two failures occurred."""
+
+    def test_allows_path_inside_configured_root(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A path inside a configured root does not raise."""
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(tmp_path))
+        target = tmp_path / "invoice.xml"
+        target.touch()
+        ensure_path_allowed(target)
+
+    def test_unconfigured_server_explains_how_to_configure(
+        self, tmp_path: Path
+    ) -> None:
+        """With no roots set, the error names the variable to set."""
+        with pytest.raises(PermissionError, match="FATTURAPA_ALLOWED_ROOTS"):
+            ensure_path_allowed(tmp_path / "invoice.xml")
+
+    def test_path_outside_roots_reports_a_different_cause(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """With roots set, the error says the path is outside them."""
+        allowed = tmp_path / "allowed"
+        allowed.mkdir()
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(allowed))
+        with pytest.raises(PermissionError, match="outside the allowed roots"):
+            ensure_path_allowed(tmp_path / "elsewhere.xml")
+
+    def test_traversal_out_of_root_is_refused(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """A ../ escape from an allowed root is refused after resolution."""
+        allowed = tmp_path / "allowed"
+        allowed.mkdir()
+        monkeypatch.setenv("FATTURAPA_ALLOWED_ROOTS", str(allowed))
+        with pytest.raises(PermissionError):
+            ensure_path_allowed(allowed / ".." / "secret.xml")
