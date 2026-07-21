@@ -6,6 +6,41 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.0] — 2026-07-21
+
+### Security
+- **BREAKING** — file-system access now fails closed. Previously, when
+  `FATTURAPA_ALLOWED_ROOTS` was unset the guard permitted every path, so a
+  default deployment could read any file the process could reach. Since this
+  server is driven by an LLM agent processing untrusted documents, that default
+  turned a prompt injection into arbitrary file disclosure.
+- Tools that take a `file_path` argument now refuse the read unless
+  `FATTURAPA_ALLOWED_ROOTS` names a directory containing it.
+- Added `FATTURAPA_ALLOW_ALL_PATHS` as an explicit, documented opt-out for the
+  previous behaviour. It logs a warning once per process when active.
+
+### Added
+- `ensure_path_allowed()` — raising wrapper that distinguishes the two denial
+  causes, so the message tells the operator what to fix.
+- `is_unrestricted_mode()` — reports whether the guard has been opted out of.
+
+### Changed
+- The `list_allowed_roots` resource now reports three states instead of two:
+  configured roots, `(unrestricted)`, or `(no roots configured)`.
+
+### Migration
+Deployments that read invoices from disk must now declare where:
+
+```bash
+export FATTURAPA_ALLOWED_ROOTS=/srv/invoices:/mnt/incoming
+```
+
+Deployments that pass documents via `xml_content` are unaffected.
+Setting `FATTURAPA_ALLOW_ALL_PATHS=1` restores the 0.2.0 behaviour, but is
+not recommended outside a sandbox.
+
+---
+
 ## [0.2.0] — 2026-05-21
 
 ### Added

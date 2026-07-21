@@ -1,6 +1,6 @@
 [project]
 name = "fatturapa-mcp-server"
-version = "0.2.0"
+version = "0.3.0"
 description = "MCP server for Italian FatturaPA/SDI e-invoicing"
 readme = "README.md"
 license = { text = "MIT" }
