@@ -25,8 +25,14 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+      # pip-audit inspects the whole environment, not just this project's
+      # dependencies. That includes the build tooling the runner ships with, so
+      # an advisory against setuptools or wheel fails the job even though
+      # neither is a dependency of this package. Keeping the tooling current is
+      # what makes the audit gate reflect *our* supply chain rather than the
+      # runner image's.
+      - name: Upgrade build tooling
+        run: python -m pip install --upgrade pip setuptools wheel
 
       # Le versioni dei tool sono pinnate nel [dev] di pyproject.toml,
       # quindi la pipeline e riproducibile e non si rompe "da sola".
