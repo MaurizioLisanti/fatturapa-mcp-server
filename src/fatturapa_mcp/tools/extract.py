@@ -13,7 +13,7 @@ from mcp.server.fastmcp import Context
 
 from fatturapa_mcp.tools.validate import _SAFE_PARSER
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
-from fatturapa_mcp.utils.roots import get_allowed_roots, is_path_allowed
+from fatturapa_mcp.utils.roots import ensure_path_allowed
 
 # FastMCP injects a Context[ServerSessionT, LifespanContextT, RequestT]; the type
 # parameters are internal to the server session and not needed by tool implementations.
@@ -188,8 +188,7 @@ async def extract_invoice_data(
         lxml.etree.XMLSyntaxError: If the XML is not well-formed.
     """
     if file_path is not None:
-        if not is_path_allowed(file_path, get_allowed_roots()):
-            raise PermissionError("Access denied: path is outside allowed roots.")
+        ensure_path_allowed(file_path)
         xml_content = Path(file_path).read_text(encoding="utf-8")
     elif not xml_content:
         raise ValueError("Provide either xml_content or file_path.")
