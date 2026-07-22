@@ -93,18 +93,37 @@ After restarting Claude Desktop you will see seven new tools in the tool panel.
 | Wave 3 | Context propagation, structured logging, progress reporting, roots-based secure file access | v0.1.x |
 | Wave 4 | `find_invoice_anomalies`, `generate_invoice_report` | v0.2.0 |
 
-**v0.2.0 stats:** 7 tools · 162 tests · 95.5% coverage
+**v0.3.0 stats:** 7 tools · 178 tests · 95.6% coverage
 
 ## What it demonstrates
 - Production-grade MCP server with strict mypy typing
 - Automated security audit — bandit + pip-audit
-- Guaranteed 80% minimum coverage (currently 95.5% across 162 tests)
+- Guaranteed 80% minimum coverage (currently 95.6% across 178 tests)
+- Fail-closed file-system access: reads are refused unless explicitly configured
 - Published on PyPI — installable anywhere in one line
 - Bilingual IT/EN — built for Italian and international market
+
+### Auditable by design
+
+Every feature in this repository was built through a governed multi-agent
+pipeline — planner, executor and reviewer as separate roles, each with declared
+authority and hard quality gates between them.
+
+The `coord/` directory is the audit trail. One handoff per task, recording the
+files changed and why, the commands run with their PASS/FAIL output, the
+assumptions made and how they were verified, and the risks left open. Fifteen
+handoffs cover the four development waves listed above.
+
+For regulated work — e-invoicing, tax data, compliance — being able to show
+*how* a system was built matters as much as showing that it works. The
+methodology is documented separately in
+[agentic-dev-pipeline](https://github.com/MaurizioLisanti/agentic-dev-pipeline).
+
 ## Production status
 Used on real Italian electronic invoicing systems.
 Tested with real SDI documents in production environments.
 Part of a broader ecosystem: fatturapa-mcp-server → sdi-ops-monitor
+
 ### Development setup
 
 ```bash
@@ -230,15 +249,35 @@ Dopo il riavvio di Claude Desktop, i sette strumenti compariranno nel pannello d
 | Wave 3 | Propagazione contesto, logging strutturato, progress reporting, accesso file sicuro via roots | v0.1.x |
 | Wave 4 | `find_invoice_anomalies`, `generate_invoice_report` | v0.2.0 |
 
-**Statistiche v0.2.0:** 7 tool · 162 test · 95.5% coverage
+**Statistiche v0.3.0:** 7 tool · 178 test · 95.6% coverage
 
+## Cosa dimostra tecnicamente
 ## Cosa dimostra tecnicamente
 - MCP server production-grade con strict typing mypy
 - Security audit automatico — bandit + pip-audit
-- Coverage minima garantita all'80% (attualmente 95.5% su 162 test)
+- Coverage minima garantita all'80% (attualmente 95.6% su 178 test)
+- Accesso al filesystem fail-closed: le letture sono negate salvo configurazione esplicita
 - Pubblicato su PyPI — installabile ovunque con una riga
 - Bilingue IT/EN — pensato per mercato italiano e internazionale
-  ## In produzione
+
+### Tracciabilita by design
+
+Ogni funzionalita di questo repository e stata costruita con una pipeline
+multi-agente governata — planner, executor e reviewer come ruoli distinti,
+ciascuno con autorita dichiarata e quality gate obbligatori tra una fase e
+l'altra.
+
+La cartella `coord/` e la pista di controllo. Un handoff per task, con i file
+modificati e il motivo, i comandi eseguiti con esito PASS/FAIL, le assunzioni
+fatte e come sono state verificate, i rischi lasciati aperti. Quindici handoff
+coprono le quattro wave di sviluppo elencate sopra.
+
+Nel lavoro su ambiti regolati — fatturazione elettronica, dati fiscali,
+compliance — poter mostrare *come* un sistema e stato costruito conta quanto
+mostrare che funziona. La metodologia e documentata separatamente in
+[agentic-dev-pipeline](https://github.com/MaurizioLisanti/agentic-dev-pipeline).
+
+## In produzione
 Usato su sistemi reali di fatturazione elettronica italiana.
 Testato con documenti SDI reali in ambiente di produzione.
 Parte di un ecosistema più ampio: fatturapa-mcp-server → sdi-ops-monitor
