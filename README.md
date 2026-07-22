@@ -1,13 +1,13 @@
 # fatturapa-mcp-server
 
 [![CI](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml/badge.svg)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-95.5%25-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions)
+[![Coverage gate](https://img.shields.io/badge/coverage%20gate-80%25%20enforced-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
 
-## English
+# English
 ## The problem
 Every project integrating FatturaPA
 reimplements the same validation,
@@ -164,9 +164,13 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
   Use together with this MCP server to give Claude end-to-end visibility into
   your Italian e-invoicing operations.
 
+- **[agentic-dev-pipeline](https://github.com/MaurizioLisanti/agentic-dev-pipeline)** —
+  The governed multi-agent development pipeline this project was built with.
+  The handoffs in `coord/` are its output.
+
 ---
 
-## Italiano
+# Italiano
 ## Il problema
 Ogni progetto che integra FatturaPA
 reimplementa da zero la stessa logica
@@ -276,7 +280,6 @@ Nel lavoro su ambiti regolati — fatturazione elettronica, dati fiscali,
 compliance — poter mostrare *come* un sistema e stato costruito conta quanto
 mostrare che funziona. La metodologia e documentata separatamente in
 [agentic-dev-pipeline](https://github.com/MaurizioLisanti/agentic-dev-pipeline).
-
 ## In produzione
 Usato su sistemi reali di fatturazione elettronica italiana.
 Testato con documenti SDI reali in ambiente di produzione.
@@ -321,6 +324,10 @@ npx @modelcontextprotocol/inspector uvx fatturapa-mcp-server
   per ricevere, archiviare e instradare i file FatturaPA da/verso il SDI.
   Da usare insieme a questo server MCP per dare a Claude visibilità end-to-end
   sulle operazioni di fatturazione elettronica italiana.
+
+- **[agentic-dev-pipeline](https://github.com/MaurizioLisanti/agentic-dev-pipeline)** —
+  La pipeline di sviluppo multi-agente governata con cui questo progetto è stato
+  costruito. Gli handoff in `coord/` ne sono l'output.
 
 ---
 
