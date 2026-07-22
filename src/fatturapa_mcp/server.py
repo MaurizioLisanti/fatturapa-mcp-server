@@ -13,7 +13,7 @@ from fatturapa_mcp.tools.report import generate_invoice_report
 from fatturapa_mcp.tools.sdi_errors import lookup_sdi_error
 from fatturapa_mcp.tools.validate import validate_invoice
 from fatturapa_mcp.tools.vies import verify_piva_vies
-from fatturapa_mcp.utils.roots import get_allowed_roots
+from fatturapa_mcp.utils.roots import get_allowed_roots, is_unrestricted_mode
 
 mcp = FastMCP("fatturapa-mcp-server")
 
@@ -36,10 +36,14 @@ def list_allowed_roots() -> str:
     validate_invoice or extract_invoice_data with a file_path argument.
 
     Returns:
-        Newline-separated root paths, or ``"(unrestricted)"`` when none are set.
+        Newline-separated root paths; ``"(unrestricted)"`` when the operator
+        opted out of the guard; ``"(no roots configured)"`` when file-system
+        reads are disabled and documents must be passed as xml_content.
     """
+    if is_unrestricted_mode():
+        return "(unrestricted)"
     roots = get_allowed_roots()
-    return "\n".join(str(r) for r in roots) if roots else "(unrestricted)"
+    return "\n".join(str(r) for r in roots) if roots else "(no roots configured)"
 
 
 def main() -> None:  # pragma: no cover
