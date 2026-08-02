@@ -6,6 +6,23 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.1] — 2026-08-01
+
+### Fixed
+- **Pin `mcp` below 2.0.0.** The dependency was declared as `mcp[cli]>=1.0.0`
+  with no upper bound. The 2.0 line removed `mcp.server.fastmcp`, which every
+  tool module imports, so from the day 2.0.0 shipped a fresh
+  `pip install fatturapa-mcp-server` resolved to a release this package cannot
+  import at all — including 0.3.0, already published. Nothing in this package
+  changed; the constraint was simply wrong.
+
+### Notes
+Lifting the bound means migrating to the 2.x API, not relaxing the constraint.
+Runtime dependencies now carry upper bounds where a major release is known to
+be incompatible; dev tool versions were already pinned exactly.
+
+---
+
 ## [0.3.0] — 2026-07-21
 
 ### Security
