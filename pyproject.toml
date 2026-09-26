@@ -1,6 +1,6 @@
 [project]
 name = "fatturapa-mcp-server"
-version = "0.3.1"
+version = "0.3.2"
 description = "MCP server for Italian FatturaPA/SDI e-invoicing"
 readme = "README.md"
 license = { text = "MIT" }
@@ -13,6 +13,9 @@ dependencies = [
     "mcp[cli]>=1.0.0,<2.0.0",
     "lxml>=5.0.0",
     "httpx>=0.27.0",
+    # TypedDict di typing_extensions: richiesto da Pydantic per generare gli
+    # schemi dei tool su Python < 3.12 (senza, il server non si avvia su 3.11).
+    "typing_extensions>=4.7",
 ]
 
 [project.optional-dependencies]
@@ -58,9 +61,8 @@ asyncio_mode = "auto"
 addopts = "--cov=src --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
-omit = [
-    "src/fatturapa_mcp/server.py",
-]
+# server.py non è più escluso: era il file che avvia il server, e la sua
+# esclusione ha nascosto il crash su Python 3.11 (CI verde, server rotto).
 
 [tool.bandit]
 targets = ["src"]

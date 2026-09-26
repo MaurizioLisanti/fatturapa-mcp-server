@@ -6,10 +6,11 @@ MCP tool: validate_invoice — validates a FatturaPA XML against XSD schemas v1.
 
 import time
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
 from lxml import etree
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
 from fatturapa_mcp.utils.roots import ensure_path_allowed

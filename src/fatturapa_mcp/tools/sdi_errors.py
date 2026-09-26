@@ -5,9 +5,10 @@ MCP tool: lookup_sdi_error — looks up SDI (Sistema di Interscambio) error code
 """
 
 import time
-from typing import Any, TypedDict
+from typing import Any
 
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
 

@@ -6,9 +6,10 @@ MCP tool: generate_invoice_report — aggregates FatturaPA invoices into a repor
 
 import time
 from datetime import UTC, datetime
-from typing import Any, TypeAlias, TypedDict
+from typing import Any, TypeAlias
 
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.tools.anomalies import FindAnomaliesResult, find_invoice_anomalies
 from fatturapa_mcp.tools.extract import ExtractResult, extract_invoice_data
