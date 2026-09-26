@@ -1,5 +1,12 @@
 # FatturaPA XSD Schemas
 
+> **⚠️ Current state (v0.3.2):** the two `.xsd` files in this directory are
+> **structural stubs**, not the official AdE schemas. They only check the root
+> element, the header/body blocks and the `versione` attribute. Full validation
+> against the official FatturaPA v1.2.3 schema is planned for the next release.
+> Note: there is no official `v1.3` namespace; all current schemas (1.2.x) use
+> `.../fatture/v1.2`.
+
 This directory stores the official XSD schema files published by the
 Agenzia delle Entrate (AdE) for FatturaPA validation.
 

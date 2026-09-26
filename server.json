@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.MaurizioLisanti/fatturapa-mcp-server",
+  "title": "FatturaPA / SDI",
+  "description": "Italian e-invoicing (FatturaPA/SDI): parse invoices, detect anomalies, VAT checks via VIES, reports.",
+  "repository": {
+    "url": "https://github.com/MaurizioLisanti/fatturapa-mcp-server",
+    "source": "github"
+  },
+  "version": "0.3.2",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "fatturapa-mcp-server",
+      "version": "0.3.2",
+      "runtimeHint": "uvx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "FATTURAPA_ALLOWED_ROOTS",
+          "description": "Folders the server may read invoices from (';' separated on Windows, ':' elsewhere). If unset, file reads are refused and XML must be passed as text.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
