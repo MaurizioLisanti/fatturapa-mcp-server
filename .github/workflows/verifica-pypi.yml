@@ -1,0 +1,53 @@
+# Verifica il pacchetto PUBBLICATO su PyPI, come lo installa un utente.
+# Diverso da ci.yml, che prova il codice del repo: qui si prova cio' che gli utenti scaricano.
+name: Verifica del pacchetto PyPI
+
+on:
+  release:
+    types: [published]          # dopo ogni release su GitHub (che si crea dopo PyPI)
+  schedule:
+    - cron: "17 6 * * 1"        # ogni lunedi' alle 06:17 UTC: dipendenze nuove, PyPI, Python
+  workflow_dispatch:            # pulsante "Run workflow" nella scheda Actions
+    inputs:
+      versione:
+        description: "Versione da verificare (vuoto = ultima su PyPI)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read                # solo lettura: nessun segreto, nessuna scrittura
+
+jobs:
+  verifica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4   # serve solo per lo script di verifica
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Installa da PyPI, come un utente
+        env:
+          # Il valore passa da una variabile d'ambiente, non dentro lo script:
+          # cosi' un nome di tag o un input strano non puo' diventare un comando.
+          VERSIONE: ${{ inputs.versione || github.event.release.tag_name || '' }}
+        run: |
+          V="${VERSIONE#v}"
+          if [ -n "$V" ]; then SPEC="fatturapa-mcp-server==$V"; else SPEC="fatturapa-mcp-server"; fi
+          echo "Installo: $SPEC"
+          # Subito dopo una release PyPI puo' impiegare qualche minuto: fino a 5 tentativi.
+          for i in 1 2 3 4 5; do
+            python -m pip install --no-cache-dir "$SPEC" && break
+            echo "PyPI non ancora pronto, nuovo tentativo tra 60 secondi..."
+            sleep 60
+          done
+          python -m pip show fatturapa-mcp-server
+
+      - name: Avvia il server e controlla le risposte
+        run: python verifica/verifica_pypi.py
