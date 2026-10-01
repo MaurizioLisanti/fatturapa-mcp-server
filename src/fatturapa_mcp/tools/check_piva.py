@@ -5,9 +5,10 @@ MCP tool: check_piva — validates an Italian VAT number (P.IVA) via checksum.
 """
 
 import time
-from typing import Any, TypedDict
+from typing import Any
 
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
 

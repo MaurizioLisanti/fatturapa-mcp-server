@@ -5,10 +5,11 @@ MCP tool: verify_piva_vies — verifies a VAT number against the EU VIES REST AP
 """
 
 import time
-from typing import Any, TypedDict
+from typing import Any
 
 import httpx
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
 

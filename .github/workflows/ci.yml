@@ -16,13 +16,20 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    # requires-python dichiara >=3.11: si testano tutte le versioni dichiarate.
+    # Con la sola 3.11 non basta: il crash di 0.3.1 esisteva su 3.11 con CI verde
+    # perché nessun test avviava il server (ora lo fa tests/test_server_startup.py).
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
 
       # pip-audit inspects the whole environment, not just this project's
@@ -55,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-xml
+          name: coverage-xml-${{ matrix.python-version }}
           path: coverage.xml
 
       - name: Security — bandit

@@ -7,10 +7,11 @@ MCP tool: find_invoice_anomalies — detects inconsistencies in a FatturaPA XML.
 import time
 from datetime import date
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal
 
 from lxml import etree
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.tools.check_piva import check_piva
 from fatturapa_mcp.tools.validate import _SAFE_PARSER

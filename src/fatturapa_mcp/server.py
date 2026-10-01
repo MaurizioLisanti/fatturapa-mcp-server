@@ -4,6 +4,10 @@ fatturapa_mcp.server
 MCP server entry point for FatturaPA/SDI tools.
 """
 
+import contextlib
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
+
 from mcp.server.fastmcp import FastMCP
 
 from fatturapa_mcp.tools.anomalies import find_invoice_anomalies
@@ -16,6 +20,13 @@ from fatturapa_mcp.tools.vies import verify_piva_vies
 from fatturapa_mcp.utils.roots import get_allowed_roots, is_unrestricted_mode
 
 mcp = FastMCP("fatturapa-mcp-server")
+
+# FastMCP non espone un parametro `version`: senza questa riga l'handshake MCP
+# dichiara la versione della libreria `mcp` (es. 1.30.0) invece di quella del
+# pacchetto, e un client non può sapere quale release sta usando.
+# PackageNotFoundError solo se si esegue dai sorgenti senza installare il pacchetto.
+with contextlib.suppress(PackageNotFoundError):
+    mcp._mcp_server.version = package_version("fatturapa-mcp-server")
 
 mcp.tool()(validate_invoice)
 mcp.tool()(extract_invoice_data)

@@ -6,6 +6,33 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.2] — 2026-10-01
+
+### Fixed
+- **The server did not start on Python 3.11**, although the package declares
+  `requires-python >=3.11`. FastMCP builds tool schemas with Pydantic, which
+  rejects nested `typing.TypedDict` below Python 3.12. `TypedDict` now comes from
+  `typing_extensions`. CI ran on 3.11 and stayed green because `server.py` was
+  excluded from coverage and never imported by any test.
+- The MCP handshake declared the version of the `mcp` library (1.30.0) instead
+  of the package version.
+
+### Added
+- Startup tests: tool registration, no `ctx` in tool schemas, and a real stdio
+  handshake. Verified to fail with the bug reintroduced.
+- CI matrix on Python 3.11, 3.12 and 3.13.
+- `server.json` and `mcp-name` for the official MCP Registry.
+
+### Documentation
+- README: removed claims that were not true. `validate_invoice` does not yet
+  validate against the official AdE XSD (the bundled schemas are structural
+  stubs), and the project is not used in production. Added a **Known
+  limitations** section from an audit with synthetic invoices checked against
+  the official FatturaPA v1.2.3 schema.
+- Documented `FATTURAPA_ALLOWED_ROOTS` in the Claude Desktop configuration.
+
+---
+
 ## [0.3.1] — 2026-08-01
 
 ### Fixed

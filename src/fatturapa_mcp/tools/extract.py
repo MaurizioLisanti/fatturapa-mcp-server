@@ -6,10 +6,11 @@ MCP tool: extract_invoice_data — extracts key fields from a valid FatturaPA XM
 
 import time
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
 from lxml import etree
 from mcp.server.fastmcp import Context
+from typing_extensions import TypedDict
 
 from fatturapa_mcp.tools.validate import _SAFE_PARSER
 from fatturapa_mcp.utils.logging import ctx_log, elapsed_ms
