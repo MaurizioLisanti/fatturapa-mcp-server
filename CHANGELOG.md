@@ -6,7 +6,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.3.2] — 2026-09-26
+## [0.3.2] — 2026-10-01
 
 ### Fixed
 - **The server did not start on Python 3.11**, although the package declares
