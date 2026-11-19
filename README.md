@@ -6,6 +6,10 @@
 [![Coverage gate](https://img.shields.io/badge/coverage%20gate-80%25%20enforced-brightgreen)](https://github.com/MaurizioLisanti/fatturapa-mcp-server/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/fatturapa-mcp-server)](https://pypi.org/project/fatturapa-mcp-server/)
+[![MCP Registry](https://img.shields.io/badge/MCP%20Registry-listed-blue)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.MaurizioLisanti/fatturapa-mcp-server)
+
+Listed in the [official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.MaurizioLisanti/fatturapa-mcp-server) as `io.github.MaurizioLisanti/fatturapa-mcp-server`.
 
 ---
 
